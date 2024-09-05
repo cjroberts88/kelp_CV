@@ -4,16 +4,13 @@
 
 
 #model directory name ### Change before every new model run
-model_name: trans_hflip_col_syd_fish_s2
-#trans_hflip_col_syd_incBad ################# extra photos added from sydney dataset
-#trans_flip_rot10_norm
-
+model_name: trans_hflip_col_syd_fish_s1
 
 # environment/computational parameters
 
  # random number generator seeds (long integer value) - turn each on/off for 3 replicate training runs.
-#seed: 32678456782      
-seed: 4436689132 #seed 2
+seed: 32678456782      
+#seed: 4436689132 #seed 2
 #seed: 3945074475 #seed 3
 
 device: cuda
@@ -22,34 +19,20 @@ num_workers: 4 #default is 4 - can try more for large file sizes
 # dataset parameters ##################
 
 # change to the location of data (image files)
-data_root: Images\Test_17_23_medium\
-#Images\Test_17_23_medium\ #images downloaded from iNat for test deployment of model
-#syd_images_small\ # contains iNat + Syd images can be used for all models as label file controls which images are used
+data_root: Images\
 
-#syd_images_small\
-#/mnt/ssd-cluster/chris/Images 
+
 num_classes: 2                  # change to the number of classification classes
 ###Need to also update line 56 of train.py if adding classes
 
 
 # test/train file names
-train_label_file:  output\train_21_23_syd_fish_fix.csv #including extra sydney images
-#train_21_23_syd_fish_fix.csv
-#output\train_21_23_incBad_2cat.csv # iNat training image only
-#output\train_21_23_syd_incBad_fix.csv #including extra sydney images
-#output\SG_trans_hflip_col_syd_train.csv #seagrass + syd images training file
+train_label_file:  data\train.csv #including extra sydney images
 
-# output\SG_trans_hflip_col_train.csv #seagrass training file
+val_label_file: data\val.csv #can also point to new images to deploy model
 
-###/mnt/ssd-cluster/chris/train_21_23_exBad.csv
-
-val_label_file: Output\iNat_obs_17_23_testset_img_list.csv
-
-# output\SG_trans_hflip_col_val.csv #seagrass validation label file
-#output\val_incomplete_incBad_2cat.csv #validation_label_file  ###/mnt/ssd-cluster/chris/val_incomplete_exBad.csv
-# Output\iNat_obs_17_23_testset_img_list.csv ###test_label_file - for deploying on 55k iNat photos
-
-#original training file /mnt/ssd-cluster/chris/train_21_23_exBad.csv
+#e.g. deployment_test_list_55k 
+# data\deployment_test_list_55k.csv ###test_label_file - for deploying on 55k iNat photos
 
 
 # training hyperparameters
