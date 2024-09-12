@@ -1,0 +1,655 @@
+---
+title: "kelp_cv_figures"
+output: html_document
+date: "2024-09-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+
+library(mvabund)
+
+library(lme4)
+
+library(ggplot2)
+
+library(ggthemes)
+
+library(ggpubr)
+
+library(mgcv)
+
+library(lmtest)
+
+library(precrec)
+
+```
+
+```{r}
+raw_annotations <- read.csv("data/R_data/iNat_kelp_data_clean.csv")
+raw_annotations$id <- as.character(raw_annotations$id)
+
+raw_data <- read.csv("data/R_data/iNat_obs_20_23_bioreg.csv")
+
+model_predictions <- read.csv("data/R_data/trans_hflip_col_syd_fish_s2_57_val.csv")
+
+Kelp_px_prop <- read.csv("data/R_data/Kelp_px_prop.csv")
+
+
+test_set_orig <- read.csv("data/R_data/iNat_obs_17_23_testset.csv")
+test_set_orig$id <- as.character(test_set_orig$id)
+
+#model deployment predictions
+model_predictions_55k_raw <- read.csv("data/R_data/trans_hflip_col_syd_fish_s2_57_test.csv") 
+
+model_predictions_55k_raw$id <- str_replace(model_predictions_55k_raw$id, ".jpg", "")
+
+#model deployment - id checking files
+iNat_17_19_val_set <- read.csv("data/R_data/iNat_17_19_val_set.csv")
+iNat_21_23_val_set <- read.csv("data/R_data/iNat_21_23_val_set.csv")
+
+```
+
+```{r}
+model_predictions$id <- str_replace(model_predictions$id, ".jpg", "")
+
+predictions<- left_join(raw_annotations,model_predictions, by='id')
+
+predictions=predictions %>% drop_na(predictions)
+
+Kelp_px_prop$id <- as.character(Kelp_px_prop$id) 
+predictions<- left_join(predictions,Kelp_px_prop, by='id')
+```
+
+```{r}
+kelp_photos <- predictions %>% filter(Kelp.y == 1)
+
+kelp_photos$Usability  <- str_replace(kelp_photos$Usability , 'Yes', 'Good')
+
+
+kelp_photos$kelp_pred <- ifelse(kelp_photos$predictions>=0.48, 1, 0)
+
+
+```
+#Figure 2 - Precision recall curve comparison
+```{r}
+trans_hflip_col_syd_fish_55 <- read.csv("data/R_data/models/trans_hflip_col_syd_fish_55.csv")
+trans_hflip_col_syd_fish_s2_57<- read.csv("data/R_data/models/trans_hflip_col_syd_fish_s2_57.csv")
+trans_hflip_col_syd_fish_s3_51<- read.csv("data/R_data/models/trans_hflip_col_syd_fish_s2_57.csv")
+
+
+trans_hflip_col_del_incBad_37 <- read.csv("data/R_data/models/trans_hflip_col_del_incBad_37.csv")
+trans_hflip_col_del_incBad_s2_58<- read.csv("data/R_data/models/trans_hflip_col_del_incBad_s2_58.csv")
+trans_hflip_col_del_incBad_s3_58<- read.csv("data/R_data/models/trans_hflip_col_del_incBad_s3_58.csv")
+
+trans_hflip_col_incBad_39<- read.csv("data/R_data/models/trans_hflip_col_incBad_39.csv")
+trans_hflip_col_incBad_s2_45<- read.csv("data/R_data/models/trans_hflip_col_incBad_s2_45.csv")
+trans_hflip_col_incBad_s3_45<- read.csv("data/R_data/models/trans_hflip_col_incBad_s3_45.csv")
+
+unweighted_incBad_28<- read.csv("data/R_data/models/unweighted_incBad_28.csv")
+unweighted_incBad_s2_49<- read.csv("data/R_data/models/unweighted_incBad_s2_49.csv")
+unweighted_incBad_s3_18<- read.csv("data/R_data/models/unweighted_incBad_s3_18.csv")
+
+weighted_incBad_16<- read.csv("data/R_data/models/weighted_incBad_16.csv")
+weighted_incBad_s2_34<- read.csv("data/R_data/models/weighted_incBad_s2_34.csv")
+weighted_incBad_s3_55<- read.csv("data/R_data/models/weighted_incBad_s3_55.csv")
+
+
+
+scores4 <- join_scores(
+    unweighted_incBad_28$predictions,
+    weighted_incBad_16$predictions,
+    trans_hflip_col_incBad_39$predictions, 
+    trans_hflip_col_del_incBad_37$predictions,
+    trans_hflip_col_syd_fish_55$predictions,
+    
+   unweighted_incBad_s2_49$predictions,
+   weighted_incBad_s2_34$predictions, 
+   trans_hflip_col_incBad_s2_45$predictions, 
+   trans_hflip_col_del_incBad_s2_58$predictions,
+   trans_hflip_col_syd_fish_s2_57$predictions,
+   
+   unweighted_incBad_s3_18$predictions,
+   weighted_incBad_s3_55$predictions,
+   trans_hflip_col_incBad_s3_45$predictions,
+   trans_hflip_col_del_incBad_s3_58$predictions,
+    trans_hflip_col_syd_fish_s3_51$predictions
+    )
+
+labels4 <- join_labels(
+ unweighted_incBad_28$Kelp,
+    weighted_incBad_16$Kelp,
+    trans_hflip_col_incBad_39$Kelp, 
+    trans_hflip_col_del_incBad_37$Kelp,
+ trans_hflip_col_syd_fish_55$Kelp,
+ 
+   unweighted_incBad_s2_49$Kelp,
+   weighted_incBad_s2_34$Kelp, 
+   trans_hflip_col_incBad_s2_45$Kelp, 
+   trans_hflip_col_del_incBad_s2_58$Kelp,
+ trans_hflip_col_syd_fish_s2_57$Kelp,
+ 
+   unweighted_incBad_s3_18$Kelp,
+   weighted_incBad_s3_55$Kelp,
+   trans_hflip_col_incBad_s3_45$Kelp,
+   trans_hflip_col_del_incBad_s3_58$Kelp,
+ trans_hflip_col_syd_fish_s3_51$Kelp
+    )
+
+
+
+mmmdat4 <- mmdata(scores4, labels4,
+  modnames = c("Unweighted", "Weighted", "Augmentations", "Delete Square", "Additional Images" ),
+  dsids = c(1, 2,3)
+)
+
+
+# Calculate curves for multiple models and multiple test datasets
+mmcurves <- evalmod(mmmdat4)
+
+
+auc_ci <- auc_ci(mmcurves)
+
+knitr::kable(auc_ci)
+
+mmpoins <- evalmod(mmmdat4, mode = "basic")
+mmpoins
+
+
+mmdf <- fortify(mmcurves, raw_curves = FALSE)
+## Plot average ROC curve
+df_prc <- subset(mmdf, curvetype == "PRC")
+
+p_prc_gr <- ggplot(df_prc, aes(x = x, y = y, ymin = ymin, ymax = ymax))
+p_prc_gr <- p_prc_gr + 
+  geom_smooth(aes(color = modname), stat = "identity")+
+ scale_colour_manual(values=c("#F8766D",	"#00A08A",	"#F2AD00",	"#F98400",	"#5BBCD6"))+
+  scale_fill_manual(values = alpha(c('grey'), 0.01))+
+  #labs(colour='Model', fill='Model') +
+  guides(color = guide_legend(nrow = 3))+
+    labs(x = "Recall", 
+       y = "Precision") +
+  theme_classic()+
+  theme(legend.title= element_blank(), legend.position="bottom")
+
+p_prc_gr
+
+#ggsave("Output/Fig2_precrec.pdf", dpi=600, units='mm', width = 80, height = 100)
+#ggsave("Output/Fig2_precrec.png", dpi=600, units='mm', width = 80, height = 100)
+
+```
+
+
+#Figure 3 - TP/TN/FP/FN @ F1-Score Threshold
+```{r}
+CM_Bar_beta05_data <- read.csv("data/R_data/CM_Bar_beta0_5thr.csv")
+CM_Bar_beta05_data$Human.Observer <- str_replace(CM_Bar_beta05_data$Human.Observer, 'Present', 'Ecklonia Present')
+CM_Bar_beta05_data$Model.Prediction <- str_replace(CM_Bar_beta05_data$Model.Prediction, 'Present', 'Ecklonia Present')
+CM_Bar_beta05_data$Human.Observer <- str_replace(CM_Bar_beta05_data$Human.Observer, 'Absent', 'Ecklonia Absent')
+CM_Bar_beta05_data$Model.Prediction <- str_replace(CM_Bar_beta05_data$Model.Prediction, 'Absent', 'Ecklonia Absent')
+
+CM_Bar_beta05_data$CV_model <- factor(CM_Bar_beta05_data$CV_model, levels=unique(CM_Bar_beta05_data$CV_model))
+CM_Bar_beta05_data$Human.Observer <- factor(CM_Bar_beta05_data$Human.Observer, levels=unique(CM_Bar_beta05_data$Human.Observer))
+CM_Bar_beta05_data$Model.Prediction <- factor(CM_Bar_beta05_data$Model.Prediction, levels=unique(CM_Bar_beta05_data$Model.Prediction))
+CM_Bar_beta05_data$prediction_result <- factor(CM_Bar_beta05_data$prediction_result, levels=unique(CM_Bar_beta05_data$prediction_result))
+
+
+acc_plot_F1 <- ggplot(CM_Bar_beta05_data, aes(y = F1_images_count, x=CV_model, fill = CV_model)) + 
+geom_col(position = "dodge",  show.legend=FALSE)+
+     xlab("Model") + 
+    ylab("Number of Images")+
+   ggh4x::facet_nested("Model Prediction" + Model.Prediction~ "Human Observer" + Human.Observer)+
+           scale_fill_manual(values=c("#F8766D",	"#00A08A",	"#F2AD00",	"#F98400",	"#5BBCD6"))+
+  theme_classic()+
+    theme(strip.background = element_blank())+
+    #theme(panel.spacing = unit(2, "lines"))+
+    scale_y_continuous(limits = c(0, 250))+
+       theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    #theme(legend.position="bottom")
+
+
+acc_plot_F1  + geom_text(aes(x=2,y=250,label=prediction_result))
+
+#ggsave("Output/Fig3_TP_TN_FP_FN.png", dpi=600, units='mm', width = 180, height = 110)
+```
+
+Figure 4: GAM - factors influencing model confidece score
+
+```{r}
+
+
+kelp_photos$Usability <- as.factor(kelp_photos$Usability)
+kelp_photos$Photo_Scale <- as.factor(kelp_photos$Photo_Scale)
+
+
+
+conf_gam <- gam(predictions ~  Photo_Scale + 
+                     s(Prop_Kelp), 
+                     data = kelp_photos, method = "REML", 
+             family =gaussian())
+
+reduced_model <- gam(predictions ~  s(Prop_Kelp),  
+                     data = kelp_photos, method = "REML", 
+             family =gaussian())
+
+#GAM test for influence of proportion kelp on confidence score
+summary(conf_gam)
+#GAM model checks
+gam.check(conf_gam)
+
+#Anova comparing GAM with and without photo scale - test for influence of photo scale
+lrtest(conf_gam, reduced_model)
+ 
+#t-test for influence of image clarity
+###filtered to include low proportion kelp images only to avoid confounding as no high proportion & blurry images in dataset
+
+kelp_photos_lowconf <- kelp_photos %>% filter(Prop_Kelp < 0.33 )
+ 
+ t.test(kelp_photos_lowconf$predictions~kelp_photos_lowconf$Usability)
+ 
+```
+
+
+## 2. Generate model predictions - to data for figure
+
+```{r}
+
+# Define the time sequence for predictions
+prop_kelp_range <- range(kelp_photos$Prop_Kelp)
+prop_kelp_seq <- seq(from = prop_kelp_range[1], to = prop_kelp_range[2], length.out = 100)
+
+# Create the data frame for predictions
+pred_data <- expand.grid(
+  Prop_Kelp = prop_kelp_seq, 
+  Photo_Scale = levels(kelp_photos$Photo_Scale)#,
+)
+
+# Get the predictions along with standard errors
+predsGAM <- predict(conf_gam, newdata = pred_data, type = "response", se.fit = TRUE)
+
+# Add the predictions and standard errors to the data frame
+pred_data$predictions_pred <- predsGAM$fit
+pred_data$predictions_se <- predsGAM$se.fit
+
+# Calculate the critical value from the t-distribution
+n <- nrow(kelp_photos)
+alpha <- 0.05
+t_value <- qt(1 - alpha / 2, df = n - 1)
+
+# Calculate the confidence intervals using the t-value
+pred_data$predictions_ci_lower <- predsGAM$fit - t_value * predsGAM$se.fit
+pred_data$predictions_ci_upper <- predsGAM$fit + t_value * predsGAM$se.fit
+
+
+
+
+```
+
+```{r}
+ggplot(pred_data, aes(x = Prop_Kelp, y = predictions_pred, color = Photo_Scale)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = predictions_ci_lower, ymax = predictions_ci_upper, fill = Photo_Scale), alpha = 0.2, color = NA) +
+  geom_point(data = kelp_photos, aes(x = Prop_Kelp, y = predictions, color = Photo_Scale, shape=Usability), alpha = 0.5, size=2)+
+  labs(x = "Proportion Ecklonia", 
+       y = "Confidence Score") +
+  scale_colour_manual(values=c("#F8766D", "#F2AD00","#00A08A"))+
+    scale_fill_manual(values=c("#F8766D", "#F2AD00","#00A08A"))+
+ scale_shape_manual(values=c(8, 19))+
+  labs(colour='Image Style', fill='Image Style', shape = 'Image Clarity' ) +
+  guides(colour = guide_legend(title.position = "top",order = 1, nrow = 3), 
+         fill = guide_legend(title.position = "top",order=1, nrow = 3),
+              shape = guide_legend(title.position = "top",order = 2, nrow = 2))+
+  theme_classic()+
+   theme(legend.position="bottom",legend.margin=margin(c(1,20,5,0)))
+
+
+
+#ggsave("Output/Fig4_GAM.pdf", dpi=600, units='mm', width = 80, height = 100)
+#ggsave("Output/Fig4_GAM.png", dpi=600, units='mm', width = 80, height = 100)
+
+     
+```
+
+
+```{r}
+#install.packages('plotly')
+library(plotly)
+```
+
+```{r}
+
+
+model_predictions_55k<- left_join(test_set_orig,model_predictions_55k_raw, by='id')
+```
+
+#Kelp Obs >0.48
+```{r}
+Kelp_obs <- model_predictions_55k %>% filter(predictions > 0.48)
+
+Kelp_obs_08 <- model_predictions_55k %>% filter(predictions > 0.8)
+
+```
+
+
+#Figure 6a
+
+```{r}
+#  Kelp_Obs_bioreg_sel_Wrack # wrack or underwater score. # remove wrack observations
+iNat_Kelp_obs <- read.csv("data/R_data/Kelp_Obs_bioreg_sel_Wrack.csv")
+iNat_Kelp_obs$id <- as.character(iNat_Kelp_obs$id)
+
+
+# replace Fish and With underwater and remove non-kelp obs
+iNat_Kelp_obs <- iNat_Kelp_obs %>% filter(UW_Wrack != 'NOT KELP')
+iNat_Kelp_obs <- iNat_Kelp_obs %>% 
+    mutate(UW_Wrack = replace(UW_Wrack, UW_Wrack != "W", "UW"))
+
+iNat_Kelp_obs <- iNat_Kelp_obs %>% filter(!(longitude < 146.083866 & latitude > -41.180872))
+
+# iNat kelp obs _ underwater only
+
+iNat_Kelp_UW <- iNat_Kelp_obs %>% filter(UW_Wrack != 'W')
+
+Kelp_obs_30_North_iNat_kelp_obs <-iNat_Kelp_UW %>% filter(latitude > -30.15 )
+
+fig <- iNat_Kelp_UW %>%
+  plot_ly(
+    lat = ~latitude,
+    lon = ~longitude,
+    type = "scattermapbox",
+    mode = "markers",
+    marker = list(color = '#96be25'), opacity=0.5)
+
+
+fig <- fig %>%
+  layout(mapbox= list(
+    style = "white-bg",
+    zoom = 4.7,
+    center = list(lon = 150 ,lat= -34.5),
+    layers = list(list(
+      below = 'traces',
+      sourcetype = "raster",
+      source = list("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}")))))
+
+fig
+```
+
+
+#Figure 6b
+
+```{r}
+
+library(plotly)
+
+
+fig <- Kelp_obs %>%
+  plot_ly(
+    lat = ~latitude,
+    lon = ~longitude,
+    type = "scattermapbox",
+      mode = "markers",
+    #hovertext = us_cities[,"City"],
+    marker = list(color = "#FAA800"), opacity=0.5) 
+
+
+
+fig <- fig %>%
+  layout(mapbox= list(
+    style = "white-bg",
+    zoom = 4.7,
+    center = list(lon = 150 ,lat= -34.5),
+    layers = list(list(
+      below = 'traces',
+      sourcetype = "raster",
+      source = list("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}")))))
+
+fig
+```
+
+```{r}
+#counts of false positives etc beyond northern most true positive
+Kelp_obs_30_North_FalsePos <-Kelp_obs %>% filter(latitude > -30.15 )
+
+Kelp_obs_08_30_North_FalsePos <-Kelp_obs_08 %>% filter(latitude > -30.15 )
+
+
+m_p_55k_30_North_obs <- model_predictions_55k %>% filter(latitude > -30.15)
+
+```
+
+
+#Figure 6c - not final figure but plot of start and end points for distribution bars.
+
+#```{r}
+# map of kelp distributions - for creating distribution bars for figure 6
+library(plotly)
+
+Kelp_dist_ll <- read.csv("data/R_data/kelp distribution latlongs.csv")
+
+
+fig <- Kelp_dist_ll %>%
+  plot_ly(
+    lat = ~Latitude,
+    lon = ~Longitude,
+    type = "scattermapbox",
+      mode = "markers",
+    #hovertext = us_cities[,"City"],
+    marker = list(color = "#F98400")) 
+
+
+
+fig <- fig %>%
+  layout(mapbox= list(
+    style = "white-bg",
+    zoom = 4.7,
+    center = list(lon = 150 ,lat= -34.5),
+    layers = list(list(
+      below = 'traces',
+      sourcetype = "raster",
+      source = list("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}")))))
+
+fig
+#```
+
+#Supplementary 2
+```{r}
+
+iNat_17_19_val_set$set <- 'Test: Out-of-domain'
+iNat_21_23_val_set$set <- 'Test: In-domain'
+
+iNat_val_set <- bind_rows(iNat_17_19_val_set, iNat_21_23_val_set)
+
+iNat_val_set$id <- as.character(iNat_val_set$id)
+
+iNat_val_set <- left_join(model_predictions_55k_raw,iNat_val_set, by='id')
+
+iNat_val_set <- iNat_val_set %>% filter(!is.na(year))
+
+#add original model test file for comparison
+syd_s2_57_val <- read.csv("data/R_data/trans_hflip_col_syd_fish_s2_57_val.csv")
+syd_s2_57_val$set <- 'Val: Additional Images'
+
+InBoth = intersect(colnames(iNat_val_set), colnames(syd_s2_57_val))
+iNat_val_set=rbind(iNat_val_set[,InBoth], syd_s2_57_val[,InBoth])
+
+
+
+val_set_CM_48 <- iNat_val_set %>%
+  mutate(result=case_when(
+    predictions > 0.48 & Kelp== 1 ~ "True Positive",
+    predictions > 0.48 & Kelp== 0 ~ "False Positive",
+    predictions < 0.48 & Kelp== 0 ~ "True Negative",
+    predictions < 0.48 & Kelp== 1 ~ "False Negative"
+  ))
+
+
+
+```
+
+```{r}
+g <- ggplot(val_set_CM_48, aes(x=factor(set,level=c('Val: Additional Images','Test: In-domain','Test: Out-of-domain')),fill = result)) +
+ geom_bar( position = position_stack())+
+   xlab("Validation and Test datasets") + 
+    ylab("Number of Images")+
+   labs(fill='Result') +
+    scale_y_continuous(limits = c(0, 300),breaks = seq(0, 300, by = 50))+
+        scale_fill_manual(values=c("#F2AD00","#F8766D" ,"#5BBCD6",	"#00A08A"))+
+  theme_classic()+
+  theme(legend.title=element_blank())+
+  theme(legend.position = "bottom")
+g
+layer_data(g, 1)
+
+```
+
+```{r}
+
+iNat_21_23_val_set$id <- as.character(iNat_21_23_val_set$id)
+ iNat_21_23_val_set <- right_join(model_predictions_55k_raw,iNat_21_23_val_set, by='id', keep=TRUE)
+iNat_21_23_val_set <- iNat_21_23_val_set %>% filter(!is.na(year))
+
+iNat_21_23_val_set$predictions <- iNat_21_23_val_set$predictions %>% replace_na(0.3)
+
+iNat_17_19_val_set$id <- as.character(iNat_17_19_val_set$id)
+ iNat_17_19_val_set <- left_join(model_predictions_55k_raw,iNat_17_19_val_set, by='id')
+iNat_17_19_val_set <- iNat_17_19_val_set %>% filter(!is.na(year))
+
+
+
+scores3 <- join_scores(
+    trans_hflip_col_syd_fish_s2_57$predictions, 
+    iNat_21_23_val_set$predictions,
+    iNat_17_19_val_set$predictions
+            )
+
+labels3 <- join_labels(
+      trans_hflip_col_syd_fish_s2_57$Kelp,
+    iNat_21_23_val_set$Kelp,
+   iNat_17_19_val_set$Kelp
+   
+    )
+
+
+mmmdat_test_all <- mmdata(scores3, labels3,
+  modnames = c("Val: Additional Images", 'Test: In-domain','Test: Out-of-domain' ),
+  dsids = c(1, 2,3)#
+)
+
+
+
+mmcurves_all <- evalmod(mmmdat_test_all) 
+
+
+autoplot(mmcurves_all, "PRC", show_cb = FALSE)
+
+
+
+``` 
+#Supplementary 3
+
+```{r}
+
+#model deployment - id checking files
+iNat_40_val_set <- read.csv("data/R_data/iNat_lat_40_testset_kelp.csv")
+iNat_30_val_set <- read.csv("data/R_data/iNat_lat_30_testset_kelp.csv")
+
+iNat_40_val_set$lat <- '≥40°S'
+iNat_30_val_set$lat <- '<30°S'
+
+
+iNat_lat_val_set <- bind_rows(iNat_30_val_set, iNat_40_val_set)
+
+iNat_lat_val_set$id <- as.character(iNat_lat_val_set$id)
+
+iNat_lat_val_set <- left_join(model_predictions_55k_raw,iNat_lat_val_set, by='id')
+
+iNat_lat_val_set <- iNat_lat_val_set %>% filter(!is.na(kelp))
+
+
+
+iNat_lat_val_set_055 <- iNat_lat_val_set %>%
+  mutate(result=case_when(
+    predictions > 0.48 & kelp== 1 ~ "True Positive",
+    predictions > 0.48 & kelp== 0 ~ "False Positive",
+    predictions < 0.48 & kelp== 0 ~ "True Negative",
+    predictions < 0.48 & kelp== 1 ~ "False Negative"
+  ))
+
+
+
+iNat_Mid_val_set <- read.csv("data/R_data/iNat_Mid_val_set_rand.csv")
+iNat_Mid_val_set$id <- as.character(iNat_Mid_val_set$id)
+
+iNat_Mid_val_set <- rename(iNat_Mid_val_set, kelp= 'Kelp')
+iNat_Mid_val_set$lat <- '30-40°S'
+
+iNat_lat_val_set_055 <- bind_rows(iNat_lat_val_set_055, iNat_Mid_val_set)
+
+
+```
+
+```{r}
+
+g<-ggplot(iNat_lat_val_set_055, aes(x=factor(lat,level=c('<30°S','30-40°S','≥40°S')))) +
+ geom_bar(aes(fill = result), position = position_stack())+
+   xlab("Latitude") + 
+    ylab("Number of Images")+
+   labs(fill='Result') +
+    scale_y_continuous(limits = c(0, 300),breaks = seq(0, 300, by = 50))+
+        scale_fill_manual(values=c("#F2AD00","#F8766D" ,"#5BBCD6",	"#00A08A"))+
+  theme_classic()+
+    theme(legend.title=element_blank())+
+  theme(legend.position = "bottom")
+
+
+g
+layer_data(g, 1)
+
+```
+
+```{r}
+
+iNat_30_val_set$id <- as.character(iNat_30_val_set$id)
+iNat_40_val_set$id <- as.character(iNat_40_val_set$id)
+
+iNat_30_val_set <- left_join(iNat_30_val_set,model_predictions_55k_raw, by='id')
+iNat_40_val_set <-left_join(iNat_40_val_set,model_predictions_55k_raw, by='id')
+
+scores3 <- join_scores(
+        iNat_Mid_val_set$predictions,
+    iNat_40_val_set$predictions#,
+            )
+
+labels3 <- join_labels(
+    iNat_Mid_val_set$kelp,
+   iNat_40_val_set$kelp#,
+   
+    )
+
+
+
+mmmdat_test_all <- mmdata(scores3, labels3,
+  modnames = c( '30-40°S','≥40°S' ),#'<30°S',
+  dsids = c(1, 2)#
+)
+
+
+
+# Calculate curves for multiple models and multiple test datasets
+
+mmcurves_all <- evalmod(mmmdat_test_all) 
+
+# Show average Precision-Recall curves with the 95% confidence bounds
+
+
+autoplot(mmcurves_all, "PRC", show_cb = FALSE)
+
+```
+
+
+
