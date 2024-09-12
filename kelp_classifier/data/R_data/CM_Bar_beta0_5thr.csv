@@ -1,0 +1,21 @@
+﻿CV_model,prediction_result,,Human Observer,Model Prediction,F0.5_Conf_thresh,F0.5_images_count,F1_conf,F1_images_count
+Unweighted,True Positives,, Present, Present,0.46,23,0.17,32
+Weighted,True Positives,, Present, Present,0.83,19,0.35,39
+Augmentations,True Positives,, Present, Present,0.53,24,0.18,39
+Delete square,True Positives,, Present, Present,0.63,17,0.17,36
+Additional images,True Positives,, Present, Present,,,0.48,39
+Unweighted,False Negatives ,, Present, Absent,0.46,32,0.17,23
+Weighted,False Negatives ,, Present, Absent,0.83,36,0.35,16
+Augmentations,False Negatives ,, Present, Absent,0.53,31,0.18,16
+Delete square,False Negatives ,, Present, Absent,0.63,38,0.17,19
+Additional images,False Negatives ,, Present, Absent,,,0.48,19
+Unweighted,False Positives,, Absent, Present,0.46,5,0.17,26
+Weighted,False Positives,, Absent, Present,0.83,1,0.35,29
+Augmentations,False Positives,, Absent, Present,0.53,7,0.18,32
+Delete square,False Positives,, Absent, Present,0.63,0,0.17,34
+Additional images,False Positives,, Absent, Present,,,0.48,9
+Unweighted,True Negatives,, Absent, Absent,0.46,225,0.17,204
+Weighted,True Negatives,, Absent, Absent,0.83,229,0.35,201
+Augmentations,True Negatives,, Absent, Absent,0.53,223,0.18,198
+Delete square,True Negatives,, Absent, Absent,0.63,230,0.17,196
+Additional images,True Negatives,, Absent, Absent,,,0.48,221
