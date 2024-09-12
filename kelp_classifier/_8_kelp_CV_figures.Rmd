@@ -34,14 +34,13 @@ library(precrec)
 raw_annotations <- read.csv("data/R_data/iNat_kelp_data_clean.csv")
 raw_annotations$id <- as.character(raw_annotations$id)
 
-raw_data <- read.csv("data/R_data/iNat_obs_20_23_bioreg.csv")
 
 model_predictions <- read.csv("data/R_data/trans_hflip_col_syd_fish_s2_57_val.csv")
 
 Kelp_px_prop <- read.csv("data/R_data/Kelp_px_prop.csv")
 
 
-test_set_orig <- read.csv("data/R_data/iNat_obs_17_23_testset.csv")
+test_set_orig <- read.csv("data/iNat_deployment_DL_list_55k.csv")
 test_set_orig$id <- as.character(test_set_orig$id)
 
 #model deployment predictions
