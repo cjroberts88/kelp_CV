@@ -2,6 +2,7 @@
 Computer vision code developed as part of the [CV4Ecology 2022 Summer School](https://cv4ecology.caltech.edu/).
 
 This repository is code for the computer vision models presented in:
+
 **Trawling for photographic bycatch: Using computer vision to extract kelp presence data from iNaturalist fish photographs**. 
 
 
@@ -9,7 +10,7 @@ This repository is code for the computer vision models presented in:
 
 The  training images for this model have not been included in this repository.
 
-They can be downloaded from iNaturalist using the code provided in **kelp_classifier/_1_iNat_train_image_download.ipynb**
+They can be downloaded from iNaturalist using the code provided in: **kelp_classifier/_1_iNat_train_image_download.ipynb**
 
 Note: The photographs used for the 'Additional images' are not openly available online due to licencing restrictions. They can be provided directly upon request.
 
@@ -36,13 +37,13 @@ Model training can be run using:
 
  ## Model performance visualization 
 The remaining files are for model performance visualisation:
-**_5_eval_vis.py
 
-_6a_threshold_calc.py
+**_5_eval_vis.py**
 
-_6b_eval_vis_CM.py
+**_6a_threshold_calc.py**
 
-_7_grad_cam.py
+**_6b_eval_vis_CM.py**
 
-_8_kelp_CV_figures.Rmd
-**
+**_7_grad_cam.py**
+
+**_8_kelp_CV_figures.Rmd**
