@@ -22,12 +22,16 @@ and
 - #Need to turn augmentations on/off: Lines 58-65
 
 ## Model training
-Model training can be run using: **kelp_classifier/_3_train.py**
+Model training can be run using: 
+
+**kelp_classifier/_3_train.py**
 
 ## Model evaluation
 
-Model training can be run using: **kelp_classifier/_4_evaluation.py
-**
+Model training can be run using: 
+
+**kelp_classifier/_4_evaluation.py**
+
  Move and rename best model evaluation file (.pt) to main folder before running
 
  ## Model performance visualization 
