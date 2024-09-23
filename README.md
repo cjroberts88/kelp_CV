@@ -20,9 +20,7 @@ The model parameters can then be setup in the files
 
 **configs/exp_resnet18.yaml**
 
-**kelp_classifier/_2_dataset.py**
-
-- #Need to turn augmentations on/off: Lines 58-65
+**kelp_classifier/_2_dataset.py** (Need to turn augmentations on/off: Lines 58-65)
 
 ## Model training
 Model training can be run using: 
