@@ -31,8 +31,11 @@ Model training can be run using: kelp_classifier/_4_evaluation.py
  ## Model performance visualization 
 The remaining files are for model performance visualisation:
 _5_eval_vis.py
+
 _6a_threshold_calc.py
+
 _6b_eval_vis_CM.py
+
 _7_grad_cam.py
 _8_kelp_CV_figures.Rmd
 
