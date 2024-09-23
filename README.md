@@ -17,9 +17,11 @@ Note: The photographs used for the 'Additional images' are not openly available 
 
 ## Model parameter setup
 The model parameters can then be setup in the files 
+
 **configs/exp_resnet18.yaml**
-and
+
 **kelp_classifier/_2_dataset.py**
+
 - #Need to turn augmentations on/off: Lines 58-65
 
 ## Model training
