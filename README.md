@@ -1,5 +1,5 @@
 # Ecklonia radiata (kelp) detection in Underwater Fish Images
-Computer vision code developed as part of the [CV4Ecology 2022 Summer School](https://cv4ecology.caltech.edu/).
+Computer vision code developed as part of the [CV4Ecology 2023 Summer School](https://cv4ecology.caltech.edu/).
 
 This repository is code for the computer vision models presented in:
 
