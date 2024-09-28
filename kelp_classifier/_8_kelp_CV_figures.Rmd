@@ -34,12 +34,12 @@ library(precrec)
 raw_annotations <- read.csv("data/R_data/iNat_kelp_data_clean.csv")
 raw_annotations$id <- as.character(raw_annotations$id)
 
-
 model_predictions <- read.csv("data/R_data/trans_hflip_col_syd_fish_s2_57_val.csv")
 
 Kelp_px_prop <- read.csv("data/R_data/Kelp_px_prop.csv")
 
 
+#test_set_orig <- read.csv("data/R_data/iNat_obs_17_23_testset.csv")
 test_set_orig <- read.csv("data/iNat_deployment_DL_list_55k.csv")
 test_set_orig$id <- as.character(test_set_orig$id)
 
@@ -534,18 +534,22 @@ labels3 <- join_labels(
     )
 
 
-mmmdat_test_all <- mmdata(scores3, labels3,
+mmmdat_test_yrs <- mmdata(scores3, labels3,
   modnames = c("Val: Additional Images", 'Test: In-domain','Test: Out-of-domain' ),
   dsids = c(1, 2,3)#
 )
 
 
 
-mmcurves_all <- evalmod(mmmdat_test_all) 
+mmcurves_yrs <- evalmod(mmmdat_test_yrs) 
 
 
-autoplot(mmcurves_all, "PRC", show_cb = FALSE)
+autoplot(mmcurves_yrs, "PRC", show_cb = FALSE)
 
+
+auc_ci_yrs <- auc_ci(mmcurves_yrs)
+
+knitr::kable(auc_ci_yrs)
 
 
 ``` 
@@ -619,12 +623,12 @@ iNat_40_val_set$id <- as.character(iNat_40_val_set$id)
 iNat_30_val_set <- left_join(iNat_30_val_set,model_predictions_55k_raw, by='id')
 iNat_40_val_set <-left_join(iNat_40_val_set,model_predictions_55k_raw, by='id')
 
-scores3 <- join_scores(
+scores2 <- join_scores(
         iNat_Mid_val_set$predictions,
     iNat_40_val_set$predictions#,
             )
 
-labels3 <- join_labels(
+labels2 <- join_labels(
     iNat_Mid_val_set$kelp,
    iNat_40_val_set$kelp#,
    
@@ -632,7 +636,7 @@ labels3 <- join_labels(
 
 
 
-mmmdat_test_all <- mmdata(scores3, labels3,
+mmmdat_test_lat <- mmdata(scores2, labels2,
   modnames = c( '30-40°S','≥40°S' ),#'<30°S',
   dsids = c(1, 2)#
 )
@@ -641,12 +645,12 @@ mmmdat_test_all <- mmdata(scores3, labels3,
 
 # Calculate curves for multiple models and multiple test datasets
 
-mmcurves_all <- evalmod(mmmdat_test_all) 
+mmcurves_lat <- evalmod(mmmdat_test_lat) 
 
 # Show average Precision-Recall curves with the 95% confidence bounds
 
 
-autoplot(mmcurves_all, "PRC", show_cb = FALSE)
+autoplot(mmcurves_lat, "PRC", show_cb = FALSE)
 
 ```
 
